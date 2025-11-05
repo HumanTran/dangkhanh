@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeKhanhCute</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000;
+            background-image: url('Hearts Wallpaper.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 180px;
+        }
+
+        .slideshow-container {
+            max-width: 100%;
+            width: 100%;
+            max-height: 80vh;
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.35), rgba(255, 105, 180, 0.35));
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 192, 203, 0.6);
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.5), rgba(255, 105, 180, 0.5));
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .arrow svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+        }
+
+        .arrow:hover {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.7), rgba(255, 105, 180, 0.7));
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .arrow:active {
+            transform: translateY(-50%) scale(0.95);
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.8), rgba(255, 20, 147, 0.8));
+        }
+
+        .arrow.prev {
+            left: 5px;
+        }
+
+        .arrow.next {
+            right: 5px;
+        }
+
+        /* Mobile: luôn hiện nút */
+        @media (max-width: 767px) {
+            .arrow {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .arrow svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Desktop: ẩn nút, hiện khi hover */
+        @media (min-width: 768px) {
+            .arrow {
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+
+            .slideshow-container:hover .arrow {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" autoplay loop>
+        <source src="trove.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="slideshow-container">
+        <button class="arrow prev" onclick="prevSlide()">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="arrow next" onclick="nextSlide()">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+        
+        <div id="slidesContainer"></div>
+    </div>
+
+    <script>
+        // Đảm bảo nhạc phát khi user tương tác (do chính sách trình duyệt)
+        const music = document.getElementById('bgMusic');
+        music.volume = 0.5; // Âm lượng 50%
+        
+        document.addEventListener('click', () => {
+            if (music.paused) {
+                music.play().catch(e => console.log('Autoplay prevented'));
+            }
+        }, { once: true });
+
+        // Danh sách ảnh trong folder (thay đổi tên ảnh của bạn ở đây)
+        const images = [
+            '1.jpg',
+            '2.jpg',
+            '3.jpg',
+            '4.jpg',
+            '5.jpg',
+            '6.jpg',
+            '7.jpg',
+            '8.jpg',
+            '9.jpg',
+            '10.jpg',
+            '11.jpg',
+            '12.jpg',
+        ];
+
+        const slidesContainer = document.getElementById('slidesContainer');
+
+        // Tạo slides từ danh sách ảnh
+        images.forEach((imageName, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'slide' + (index === 0 ? ' active' : '');
+            slide.innerHTML = `<img src="${imageName}" alt="Slide ${index + 1}">`;
+            slidesContainer.appendChild(slide);
+        });
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        let autoSlideInterval;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+            resetAutoSlide();
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+            resetAutoSlide();
+        }
+
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(() => {
+                showSlide(currentSlide + 1);
+            }, 2000);
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+
+        // Bắt đầu auto slide
+        startAutoSlide();
+
+        // Vuốt để chuyển slide trên mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.querySelector('.slideshow-container').addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.querySelector('.slideshow-container').addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
