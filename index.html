@@ -20,10 +20,9 @@
             background-attachment: fixed;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
             padding: 20px;
-            padding-top: 180px;
         }
 
         .slideshow-container {
@@ -37,6 +36,11 @@
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(65, 105, 225, 0.5), 0 0 0 1px rgba(135, 206, 250, 0.6);
             border: 2px solid rgba(135, 206, 250, 0.7);
+            display: none;
+        }
+
+        .slideshow-container.show {
+            display: block;
         }
 
         .slide {
@@ -131,14 +135,81 @@
                 opacity: 1;
             }
         }
+
+        .start-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .start-overlay.hidden {
+            display: none;
+        }
+
+        .start-button {
+            padding: 20px 50px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(100, 149, 237, 0.6), rgba(65, 105, 225, 0.6));
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(135, 206, 250, 0.7);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: 
+                0 8px 32px rgba(65, 105, 225, 0.5),
+                0 0 0 1px rgba(135, 206, 250, 0.6);
+            letter-spacing: 0.5px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(100, 149, 237, 0.75), rgba(65, 105, 225, 0.75));
+            box-shadow: 
+                0 10px 40px rgba(65, 105, 225, 0.6),
+                0 0 0 1px rgba(135, 206, 250, 0.8);
+            border-color: rgba(135, 206, 250, 0.9);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+            box-shadow: 
+                0 6px 20px rgba(65, 105, 225, 0.4),
+                0 0 0 1px rgba(135, 206, 250, 0.6);
+        }
+
+        @keyframes pixelPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 0 4px #000,
+                    0 0 0 8px #6495ED,
+                    0 0 0 12px #000,
+                    0 8px 0 #000,
+                    0 12px 8px rgba(0, 0, 0, 0.4);
+            }
+            50% {
+                box-shadow: 
+                    0 0 0 4px #000,
+                    0 0 0 8px #1E90FF,
+                    0 0 0 12px #000,
+                    0 8px 0 #000,
+                    0 12px 10px rgba(0, 0, 0, 0.5);
+            }
+        }
     </style>
 </head>
 <body>
-    <audio id="bgMusic" autoplay loop>
+    <div class="start-overlay" id="startOverlay">
+        <button class="start-button" id="startButton">Bắt đầu</button>
+    </div>
+
+    <audio id="bgMusic" loop>
         <source src="trove.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="slideshow-container">
+    <div class="slideshow-container" id="slideshowContainer">
         <button class="arrow prev" onclick="prevSlide()">
             <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
@@ -150,15 +221,20 @@
     </div>
 
     <script>
-        // Đảm bảo nhạc phát khi user tương tác (do chính sách trình duyệt)
         const music = document.getElementById('bgMusic');
-        music.volume = 0.5; // Âm lượng 50%
+        const startOverlay = document.getElementById('startOverlay');
+        const startButton = document.getElementById('startButton');
+        const slideshowContainer = document.getElementById('slideshowContainer');
         
-        document.addEventListener('click', () => {
-            if (music.paused) {
-                music.play().catch(e => console.log('Autoplay prevented'));
-            }
-        }, { once: true });
+        music.volume = 0.5;
+
+        // Xử lý khi nhấn nút bắt đầu
+        startButton.addEventListener('click', () => {
+            startOverlay.classList.add('hidden');
+            slideshowContainer.classList.add('show');
+            music.play().catch(e => console.log('Autoplay prevented'));
+            startAutoSlide(); // Bắt đầu slideshow
+        });
 
         // Danh sách ảnh trong folder (thay đổi tên ảnh của bạn ở đây)
         const images = [
@@ -217,8 +293,8 @@
             startAutoSlide();
         }
 
-        // Bắt đầu auto slide
-        startAutoSlide();
+        // KHÔNG tự động bắt đầu slideshow nữa
+        // startAutoSlide(); <- XÓA DÒNG NÀY
 
         // Vuốt để chuyển slide trên mobile
         let touchStartX = 0;
