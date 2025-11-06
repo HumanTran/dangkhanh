@@ -28,22 +28,18 @@
 
         .element-layer {
             position: fixed;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: url('element.jpg');
-            background-size: 100%;
-            /* Giảm từ cover xuống 80% */
+            background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
+            background-attachment: fixed;
             opacity: 1;
             pointer-events: none;
             z-index: 1;
             animation: floating 6s ease-in-out infinite;
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
         }
 
         @keyframes floating {
@@ -142,48 +138,8 @@
             right: 5px;
         }
 
-        @media (max-width: 375px) {
-            /* Đổi lại từ 1200px về 375px */
-            body {
-                padding: 10px;
-            }
-
-            .element-layer {
-                animation: floatingSE 8s ease-in-out infinite;
-                background-size: 40% !important;
-                /* Giảm về 70% cho iPhone SE */
-            }
-
-            .slideshow-container {
-                max-height: 55vh !important;
-                max-width: 90%;
-            }
-
-            .slide {
-                padding: 5px;
-            }
-
-            .slide img {
-                max-height: 50vh !important;
-            }
-
-            .start-button {
-                padding: 12px 35px;
-                font-size: 18px;
-            }
-
-            .arrow {
-                width: 24px;
-                height: 24px;
-            }
-
-            .arrow svg {
-                width: 14px;
-                height: 14px;
-            }
-        }
-
-        @media (min-width: 376px) and (max-width: 413px) {
+        /* Mobile: luôn hiện nút */
+        @media (max-width: 767px) {
             .arrow {
                 width: 28px;
                 height: 28px;
@@ -193,67 +149,9 @@
                 width: 16px;
                 height: 16px;
             }
-
-            body {
-                padding: 10px;
-            }
-
-            .slideshow-container {
-                max-height: 85vh;
-            }
-
-            .slide img {
-                max-height: 80vh;
-            }
-
-            .start-button {
-                padding: 15px 40px;
-                font-size: 20px;
-            }
         }
 
-        @media (min-width: 414px) and (max-width: 767px) {
-            .element-layer {
-                animation: floatingXR 6s ease-in-out infinite;
-            }
-
-            @keyframes floatingXR {
-                0%, 100% {
-                    transform: translateY(0px) scale(0.9);
-                }
-                50% {
-                    transform: translateY(-15px) scale(0.9);
-                }
-            }
-
-            .arrow {
-                width: 28px;
-                height: 28px;
-            }
-            
-            .arrow svg {
-                width: 16px;
-                height: 16px;
-            }
-
-            body {
-                padding: 10px;
-            }
-
-            .slideshow-container {
-                max-height: 85vh;
-            }
-
-            .slide img {
-                max-height: 80vh;
-            }
-
-            .start-button {
-                padding: 15px 40px;
-                font-size: 20px;
-            }
-        }
-
+        /* Desktop: ẩn nút, hiện khi hover */
         @media (min-width: 768px) {
             .arrow {
                 opacity: 0;
@@ -310,12 +208,22 @@
                 0 0 0 1px rgba(135, 206, 250, 0.6);
         }
 
-        @keyframes floatingSE {
+        @keyframes pixelPulse {
             0%, 100% {
-                transform: translateY(0px) scale(1);
+                box-shadow: 
+                    0 0 0 4px #000,
+                    0 0 0 8px #6495ED,
+                    0 0 0 12px #000,
+                    0 8px 0 #000,
+                    0 12px 8px rgba(0, 0, 0, 0.4);
             }
             50% {
-                transform: translateY(-10px) scale(1);
+                box-shadow: 
+                    0 0 0 4px #000,
+                    0 0 0 8px #1E90FF,
+                    0 0 0 12px #000,
+                    0 8px 0 #000,
+                    0 12px 10px rgba(0, 0, 0, 0.5);
             }
         }
     </style>
@@ -350,20 +258,33 @@
         
         music.volume = 0.5;
 
+        // Xử lý khi nhấn nút bắt đầu
         startButton.addEventListener('click', () => {
             startOverlay.classList.add('hidden');
             slideshowContainer.classList.add('show');
             music.play().catch(e => console.log('Autoplay prevented'));
-            startAutoSlide();
+            startAutoSlide(); // Bắt đầu slideshow
         });
 
+        // Danh sách ảnh trong folder (thay đổi tên ảnh của bạn ở đây)
         const images = [
-            '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg',
-            '7.jpg', '8.jpg', '9.jpg', '10.jpg', '11.jpg', '12.jpg'
+            '1.jpg',
+            '2.jpg',
+            '3.jpg',
+            '4.jpg',
+            '5.jpg',
+            '6.jpg',
+            '7.jpg',
+            '8.jpg',
+            '9.jpg',
+            '10.jpg',
+            '11.jpg',
+            '12.jpg',
         ];
 
         const slidesContainer = document.getElementById('slidesContainer');
 
+        // Tạo slides từ danh sách ảnh
         images.forEach((imageName, index) => {
             const slide = document.createElement('div');
             slide.className = 'slide' + (index === 0 ? ' active' : '');
@@ -402,6 +323,10 @@
             startAutoSlide();
         }
 
+        // KHÔNG tự động bắt đầu slideshow nữa
+        // startAutoSlide(); <- XÓA DÒNG NÀY
+
+        // Vuốt để chuyển slide trên mobile
         let touchStartX = 0;
         let touchEndX = 0;
 
