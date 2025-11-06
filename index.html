@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeKhanhCute</title>
+    <title>Bé Khánh Cute</title>
     <style>
         * {
             margin: 0;
@@ -23,6 +23,32 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+
+        .element-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('element.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
         }
 
         .slideshow-container {
@@ -37,6 +63,7 @@
             box-shadow: 0 8px 32px rgba(65, 105, 225, 0.5), 0 0 0 1px rgba(135, 206, 250, 0.6);
             border: 2px solid rgba(135, 206, 250, 0.7);
             display: none;
+            z-index: 2;
         }
 
         .slideshow-container.show {
@@ -140,6 +167,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 3;
         }
 
         .start-overlay.hidden {
@@ -201,6 +229,8 @@
     </style>
 </head>
 <body>
+    <div class="element-layer"></div>
+
     <div class="start-overlay" id="startOverlay">
         <button class="start-button" id="startButton">Bắt đầu</button>
     </div>
